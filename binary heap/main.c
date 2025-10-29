@@ -310,7 +310,7 @@ void dijkstra_binary_heap(Graph* graph, int source, int* dist) {
  * @param filename 文件名
  * @return 图指针
  */
-Graph* read_dimacs_graph(const char* filename) {
+Graph* read_txt_graph(const char* filename) {
     FILE* file = fopen(filename, "r");
     if (!file) {
         printf("Cannot open file: %s\n", filename);
@@ -318,33 +318,33 @@ Graph* read_dimacs_graph(const char* filename) {
     }
     
     char line[256];
-    int num_nodes = 0, num_edges = 0;
+    int max_node = 0;
+    int edge_count = 0;
     
-    // 第一遍读取：获取节点和边数量
     while (fgets(line, sizeof(line), file)) {
-        if (line[0] == 'p') {
-            sscanf(line, "p sp %d %d", &num_nodes, &num_edges);
-            break;
+        int src, dest, weight;
+        if (sscanf(line, "%d %d %d", &src, &dest, &weight) == 3) {
+            edge_count++;
+            if (src > max_node) max_node = src;
+            if (dest > max_node) max_node = dest;
         }
     }
     
-    if (num_nodes == 0) {
-        printf("Invalid file format\n");
+    if (max_node == 0) {
+        printf("Invalid file format or empty file\n");
         fclose(file);
         return NULL;
     }
     
-    printf("Reading graph: %d nodes, %d edges\n", num_nodes, num_edges);
+    int num_nodes = max_node;
+    printf("Reading graph: %d nodes, %d edges\n", num_nodes, edge_count);
     
     Graph* graph = create_graph(num_nodes);
     
-    // 第二遍读取：添加边
     rewind(file);
     while (fgets(line, sizeof(line), file)) {
-        if (line[0] == 'a') {
-            int src, dest, weight;
-            sscanf(line, "a %d %d %d", &src, &dest, &weight);
-            // 注意：文件中的节点编号从1开始，我们内部从0开始
+        int src, dest, weight;
+        if (sscanf(line, "%d %d %d", &src, &dest, &weight) == 3) {
             add_edge(graph, src - 1, dest - 1, weight);
         }
     }
@@ -423,7 +423,7 @@ int main(int argc, char* argv[]) {
     }
     
     printf("Reading graph file: %s\n", filename);
-    Graph* graph = read_dimacs_graph(filename);
+    Graph* graph = read_txt_graph(filename);
     
     if (!graph) {
         printf("Failed to read graph\n");
