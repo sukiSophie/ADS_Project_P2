@@ -306,7 +306,7 @@ void dijkstra_binary_heap(Graph* graph, int source, int* dist) {
 // ==================== 文件读取和测试 ====================
 
 /**
- * 读取DIMACS格式的图文件
+ * 读取txt格式的图文件
  * @param filename 文件名
  * @return 图指针
  */
@@ -441,4 +441,5 @@ int main(int argc, char* argv[]) {
     free_graph(graph);
     
     return 0;
+
 }
